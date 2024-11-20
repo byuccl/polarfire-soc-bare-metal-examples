@@ -13,7 +13,7 @@
  * Version based on requirements of MPFS MSS
  *
  */
- /*========================================================================*//**
+/*========================================================================*//**
   @mainpage Sample file detailing how mss_sw_config.h should be constructed for
     the MPFS MSS
 
@@ -31,7 +31,6 @@
     @section
 
 *//*==========================================================================*/
-
 
 #ifndef MSS_SW_CONFIG_H_
 #define MSS_SW_CONFIG_H_
@@ -61,11 +60,15 @@
  * your application to the target memory and kicks-off U54_1 to run it.
  */
 #ifndef MPFS_HAL_FIRST_HART
-#define MPFS_HAL_FIRST_HART  0
+#if defined(SD_CARD_BUILD) && (SD_CARD_BUILD == 1)
+#define MPFS_HAL_FIRST_HART 1
+#else
+#define MPFS_HAL_FIRST_HART 0
+#endif
 #endif
 
 #ifndef MPFS_HAL_LAST_HART
-#define MPFS_HAL_LAST_HART   4
+#define MPFS_HAL_LAST_HART 1
 #endif
 
 /*
@@ -94,11 +97,15 @@
  *   MPFS_HAL_LAST_HART above
  *
  */
+#if defined(SD_CARD_BUILD) && (SD_CARD_BUILD == 1)
+#define IMAGE_LOADED_BY_BOOTLOADER 1
+#else
 #define IMAGE_LOADED_BY_BOOTLOADER 0
+#endif
+
 #if (IMAGE_LOADED_BY_BOOTLOADER == 0)
 #define MPFS_HAL_HW_CONFIG
 #endif
-
 
 /*
  * If you are using common memory for sharing across harts,
@@ -108,17 +115,16 @@
  * linker scripts.
  */
 
-//#define MPFS_HAL_SHARED_MEM_ENABLED
-
+// #define MPFS_HAL_SHARED_MEM_ENABLED
 
 /* define the required tick rate in Milliseconds */
 /* if this program is running on one hart only, only that particular hart value
  * will be used */
-#define HART0_TICK_RATE_MS  5UL
-#define HART1_TICK_RATE_MS  5UL
-#define HART2_TICK_RATE_MS  5UL
-#define HART3_TICK_RATE_MS  5UL
-#define HART4_TICK_RATE_MS  5UL
+#define HART0_TICK_RATE_MS 5UL
+#define HART1_TICK_RATE_MS 5UL
+#define HART2_TICK_RATE_MS 5UL
+#define HART3_TICK_RATE_MS 5UL
+#define HART4_TICK_RATE_MS 5UL
 
 /*
  * Define the size of the Hart Local Storage (HLS).
@@ -128,7 +134,7 @@
  * The HLS will take memory from top of each stack allocated at boot time.
  *
  */
-#define HLS_DEBUG_AREA_SIZE     64
+#define HLS_DEBUG_AREA_SIZE 64
 
 /*
  * Bus Error Unit (BEU) configurations
@@ -139,9 +145,9 @@
  * BEU_LOCAL_INT => Configures which accrued events should generate a
  *                 local interrupt to the hart on which the event accrued.
  */
-#define BEU_ENABLE                  0x0ULL
-#define BEU_PLIC_INT                0x0ULL
-#define BEU_LOCAL_INT               0x0ULL
+#define BEU_ENABLE 0x0ULL
+#define BEU_PLIC_INT 0x0ULL
+#define BEU_LOCAL_INT 0x0ULL
 
 /*
  * Clear memory on startup
@@ -150,26 +156,26 @@
  * Note: If you are the zero stage bootloader, set this to one.
  */
 #ifndef MPFS_HAL_CLEAR_MEMORY
-#define MPFS_HAL_CLEAR_MEMORY  1
+#define MPFS_HAL_CLEAR_MEMORY 1
 #endif
 
 /*
- * Comment out the lines to disable the corresponding hardware support not required
- * in your application.
- * This is not necessary from an operational point of view as operation dictated
- * by MSS configurator settings, and items are enabled/disabled by this method.
- * The reason you may want to use below is to save code space.
+ * Comment out the lines to disable the corresponding hardware support not
+ * required in your application. This is not necessary from an operational point
+ * of view as operation dictated by MSS configurator settings, and items are
+ * enabled/disabled by this method. The reason you may want to use below is to
+ * save code space.
  */
-//#define SGMII_SUPPORT
-//#define DDR_SUPPORT
-//#define MSSIO_SUPPORT
+// #define SGMII_SUPPORT
+// #define DDR_SUPPORT
+// #define MSSIO_SUPPORT
 
 /*
  * Uncomment MICROCHIP_STDIO_THRU_MMUARTx to enable stdio port
  * Note: you must have mss_mmuart driver source code included in the project.
  */
-#define MICROCHIP_STDIO_THRU_MMUARTX    &g_mss_uart0_lo
-#define MICROCHIP_STDIO_BAUD_RATE       MSS_UART_115200_BAUD
+#define MICROCHIP_STDIO_THRU_MMUARTX &g_mss_uart0_lo
+#define MICROCHIP_STDIO_BAUD_RATE MSS_UART_115200_BAUD
 
 /*
  * DDR software options
@@ -179,26 +185,25 @@
  * Debug DDR startup through a UART
  * Comment out in normal operation. May be useful for debug purposes in bring-up
  * of a new board design.
- * See the weakly linked function setup_ddr_debug_port(mss_uart_instance_t * uart)
- * If you need to edit this function, make another copy of the function in your
- * application without the weak linking attribute. This copy will then get linked.
+ * See the weakly linked function setup_ddr_debug_port(mss_uart_instance_t *
+ * uart) If you need to edit this function, make another copy of the function in
+ * your application without the weak linking attribute. This copy will then get
+ * linked.
  * */
-//#define DEBUG_DDR_INIT
-//#define DEBUG_DDR_RD_RW_FAIL
-//#define DEBUG_DDR_RD_RW_PASS
-//#define DEBUG_DDR_CFG_DDR_SGMII_PHY
-//#define DEBUG_DDR_DDRCFG
-
+// #define DEBUG_DDR_INIT
+// #define DEBUG_DDR_RD_RW_FAIL
+// #define DEBUG_DDR_RD_RW_PASS
+// #define DEBUG_DDR_CFG_DDR_SGMII_PHY
+// #define DEBUG_DDR_DDRCFG
 
 /*
- * The hardware configuration settings imported from Libero project get generated
- * into <project_name>/src/boards/<your-board>/<fpga-design-config> folder.
- * If you need to overwrite them for testing purposes, you can do so here.
- * e.g. If you want change the default SEG registers configuration defined by
- * LIBERO_SETTING_SEG0_0, define it here and it will take precedence.
- * #define LIBERO_SETTING_SEG0_0 0x80007F80UL
+ * The hardware configuration settings imported from Libero project get
+ * generated into <project_name>/src/boards/<your-board>/<fpga-design-config>
+ * folder. If you need to overwrite them for testing purposes, you can do so
+ * here. e.g. If you want change the default SEG registers configuration defined
+ * by LIBERO_SETTING_SEG0_0, define it here and it will take precedence. #define
+ * LIBERO_SETTING_SEG0_0 0x80007F80UL
  *
  */
 
 #endif /* USER_CONFIG_MSS_USER_CONFIG_H_ */
-
